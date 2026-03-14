@@ -47,7 +47,7 @@ test('api return to present time', function () {
         'travelTo' => '0080-05-01 12:00:00',
     ]);
 
-    $this->post(route('api.return', ['user' => $this->user->id]))
+    $this->post(route('return', ['user' => $this->user->id]))
         ->assertStatus(200)
         ->assertJsonStructure([
             'data' => [
@@ -80,7 +80,7 @@ test('api forward one week into the future', function () {
         'travelTo' => '0080-05-01 12:00:00',
     ]);
 
-    $this->put(route('api.forward', ['user' => $this->user->id]))
+    $this->put(route('forward', ['user' => $this->user->id]))
         ->assertStatus(200)
         ->assertJsonStructure([
             'data' => [
@@ -112,7 +112,7 @@ test('api reverse one week into the past', function () {
         'travelTo' => '0080-05-01 12:00:00',
     ]);
 
-    $this->put(route('api.back', ['user' => $this->user->id]))
+    $this->put(route('back', ['user' => $this->user->id]))
         ->assertStatus(200)
         ->assertJsonStructure([
             'data' => [
@@ -144,7 +144,7 @@ test('locationAt returns correct location after a travel event', function () {
         'travelTo' => '0080-05-01 12:00:00',
     ]);
 
-    $this->call('GET', route('api.locationAt', ['user' => $this->user->id]), ['at' => now()->toDateTimeString()])
+    $this->call('GET', route('locationAt', ['user' => $this->user->id]), ['at' => now()->toDateTimeString()])
         ->assertStatus(200)
         ->assertJson([
             'data' => [
@@ -155,7 +155,7 @@ test('locationAt returns correct location after a travel event', function () {
 });
 
 test('locationAt returns null when agent has not yet traveled', function () {
-    $this->call('GET', route('api.locationAt', ['user' => $this->user->id]), ['at' => now()->toDateTimeString()])
+    $this->call('GET', route('locationAt', ['user' => $this->user->id]), ['at' => now()->toDateTimeString()])
         ->assertStatus(200)
         ->assertJson([
             'data' => [
@@ -170,7 +170,7 @@ test('locationAt returns null when at timestamp predates first travel event', fu
         'travelTo' => '0080-05-01 12:00:00',
     ]);
 
-    $this->call('GET', route('api.locationAt', ['user' => $this->user->id]), ['at' => now()->subYear()->toDateTimeString()])
+    $this->call('GET', route('locationAt', ['user' => $this->user->id]), ['at' => now()->subYear()->toDateTimeString()])
         ->assertStatus(200)
         ->assertJson([
             'data' => [
