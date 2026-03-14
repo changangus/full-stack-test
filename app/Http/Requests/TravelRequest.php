@@ -11,7 +11,7 @@ class TravelRequest extends FormRequest
     {
         return [
             'location' => ['required', 'string'],
-            'travelTo' => ['required', 'date_format:Y-m-d H:i:s'],
+            'travelTo' => ['required', 'date'],
         ];
     }
 
