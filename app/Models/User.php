@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\Contracts\OAuthenticatable;
@@ -51,5 +52,10 @@ class User extends Authenticatable implements OAuthenticatable
             'traveled_to_date' => 'datetime',
             'traveled_at_date' => 'datetime',
         ];
+    }
+
+    public function travelLogs(): HasMany
+    {
+        return $this->hasMany(TravelLog::class);
     }
 }
