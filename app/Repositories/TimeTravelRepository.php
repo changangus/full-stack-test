@@ -10,14 +10,15 @@ class TimeTravelRepository
 {
     public function travel(string $location, Carbon $date, User $user): User
     {
+        $now = now();
         $fromLocation = $user->location;
-        $user->update(['location' => $location, 'traveled_to_date' => $date, 'traveled_at_date' => now()]);
+        $user->update(['location' => $location, 'traveled_to_date' => $date, 'traveled_at_date' => $now]);
 
         TravelLog::create([
             'user_id' => $user->id,
             'from_location' => $fromLocation,
             'location' => $location,
-            'departure_timestamp' => now(),
+            'departure_timestamp' => $now,
             'traveled_to_date' => $user->traveled_to_date,
         ]);
 
@@ -26,14 +27,15 @@ class TimeTravelRepository
 
     public function return(User $user): User
     {
+        $now = now();
         $fromLocation = $user->location;
-        $user->update(['location' => null, 'traveled_to_date' => now(), 'traveled_at_date' => now()]);
+        $user->update(['location' => null, 'traveled_to_date' => $now, 'traveled_at_date' => $now]);
         TravelLog::create([
             'user_id' => $user->id,
             'from_location' => $fromLocation,
             'location' => null,
-            'departure_timestamp' => now(),
-            'traveled_to_date' => now(),
+            'departure_timestamp' => $now,
+            'traveled_to_date' => $now,
         ]);
 
         return $user;
@@ -41,14 +43,15 @@ class TimeTravelRepository
 
     public function forward($user): User
     {
+        $now = now();
         $fromLocation = $user->location;
-        $user->update(['traveled_to_date' => $user->traveled_to_date->add($user->traveled_at_date->diffInSeconds(now()), 'seconds')->addWeek(), 'traveled_at_date' => now()]);
+        $user->update(['traveled_to_date' => $user->traveled_to_date->add($user->traveled_at_date->diffInSeconds($now), 'seconds')->addWeek(), 'traveled_at_date' => $now]);
 
         TravelLog::create([
             'user_id' => $user->id,
             'from_location' => $fromLocation,
             'location' => $user->location,
-            'departure_timestamp' => now(),
+            'departure_timestamp' => $now,
             'traveled_to_date' => $user->traveled_to_date,
         ]);
 
@@ -65,14 +68,15 @@ class TimeTravelRepository
 
     public function back(User $user): User
     {
+        $now = now();
         $fromLocation = $user->location;
-        $user->update(['traveled_to_date' => $user->traveled_to_date->add($user->traveled_at_date->diffInSeconds(now()), 'seconds')->subWeek(), 'traveled_at_date' => now()]);
+        $user->update(['traveled_to_date' => $user->traveled_to_date->add($user->traveled_at_date->diffInSeconds($now), 'seconds')->subWeek(), 'traveled_at_date' => $now]);
 
         TravelLog::create([
             'user_id' => $user->id,
             'from_location' => $fromLocation,
             'location' => $user->location,
-            'departure_timestamp' => now(),
+            'departure_timestamp' => $now,
             'traveled_to_date' => $user->traveled_to_date,
         ]);
 
