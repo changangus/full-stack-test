@@ -5,57 +5,65 @@ namespace App\Repositories;
 use App\Models\TravelLog;
 use App\Models\User;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class TimeTravelRepository
 {
     public function travel(string $location, Carbon $date, User $user): User
     {
-        $now = now();
-        $fromLocation = $user->location;
-        $user->update(['location' => $location, 'traveled_to_date' => $date, 'traveled_at_date' => $now]);
+        return DB::transaction(function () use ($location, $date, $user) {
+            $now = now();
+            $fromLocation = $user->location;
+            $user->update(['location' => $location, 'traveled_to_date' => $date, 'traveled_at_date' => $now]);
 
-        TravelLog::create([
-            'user_id' => $user->id,
-            'from_location' => $fromLocation,
-            'location' => $location,
-            'departure_timestamp' => $now,
-            'traveled_to_date' => $user->traveled_to_date,
-        ]);
+            TravelLog::create([
+                'user_id' => $user->id,
+                'from_location' => $fromLocation,
+                'location' => $location,
+                'departure_timestamp' => $now,
+                'traveled_to_date' => $user->traveled_to_date,
+            ]);
 
-        return $user;
+            return $user;
+        });
     }
 
     public function return(User $user): User
     {
-        $now = now();
-        $fromLocation = $user->location;
-        $user->update(['location' => null, 'traveled_to_date' => $now, 'traveled_at_date' => $now]);
-        TravelLog::create([
-            'user_id' => $user->id,
-            'from_location' => $fromLocation,
-            'location' => null,
-            'departure_timestamp' => $now,
-            'traveled_to_date' => $now,
-        ]);
+        return DB::transaction(function () use ($user) {
+            $now = now();
+            $fromLocation = $user->location;
+            $user->update(['location' => null, 'traveled_to_date' => $now, 'traveled_at_date' => $now]);
 
-        return $user;
+            TravelLog::create([
+                'user_id' => $user->id,
+                'from_location' => $fromLocation,
+                'location' => null,
+                'departure_timestamp' => $now,
+                'traveled_to_date' => $now,
+            ]);
+
+            return $user;
+        });
     }
 
-    public function forward($user): User
+    public function forward(User $user): User
     {
-        $now = now();
-        $fromLocation = $user->location;
-        $user->update(['traveled_to_date' => $user->traveled_to_date->add($user->traveled_at_date->diffInSeconds($now), 'seconds')->addWeek(), 'traveled_at_date' => $now]);
+        return DB::transaction(function () use ($user) {
+            $now = now();
+            $fromLocation = $user->location;
+            $user->update(['traveled_to_date' => $user->traveled_to_date->add($user->traveled_at_date->diffInSeconds($now), 'seconds')->addWeek(), 'traveled_at_date' => $now]);
 
-        TravelLog::create([
-            'user_id' => $user->id,
-            'from_location' => $fromLocation,
-            'location' => $user->location,
-            'departure_timestamp' => $now,
-            'traveled_to_date' => $user->traveled_to_date,
-        ]);
+            TravelLog::create([
+                'user_id' => $user->id,
+                'from_location' => $fromLocation,
+                'location' => $user->location,
+                'departure_timestamp' => $now,
+                'traveled_to_date' => $user->traveled_to_date,
+            ]);
 
-        return $user;
+            return $user;
+        });
     }
 
     public function locationAt(User $user, Carbon $at): ?TravelLog
@@ -68,18 +76,20 @@ class TimeTravelRepository
 
     public function back(User $user): User
     {
-        $now = now();
-        $fromLocation = $user->location;
-        $user->update(['traveled_to_date' => $user->traveled_to_date->add($user->traveled_at_date->diffInSeconds($now), 'seconds')->subWeek(), 'traveled_at_date' => $now]);
+        return DB::transaction(function () use ($user) {
+            $now = now();
+            $fromLocation = $user->location;
+            $user->update(['traveled_to_date' => $user->traveled_to_date->add($user->traveled_at_date->diffInSeconds($now), 'seconds')->subWeek(), 'traveled_at_date' => $now]);
 
-        TravelLog::create([
-            'user_id' => $user->id,
-            'from_location' => $fromLocation,
-            'location' => $user->location,
-            'departure_timestamp' => $now,
-            'traveled_to_date' => $user->traveled_to_date,
-        ]);
+            TravelLog::create([
+                'user_id' => $user->id,
+                'from_location' => $fromLocation,
+                'location' => $user->location,
+                'departure_timestamp' => $now,
+                'traveled_to_date' => $user->traveled_to_date,
+            ]);
 
-        return $user;
+            return $user;
+        });
     }
 }

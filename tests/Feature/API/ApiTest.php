@@ -10,6 +10,10 @@ beforeEach(function () {
     Passport::actingAs($this->user);
 });
 
+afterEach(function () {
+    Carbon::setTestNow();
+});
+
 test('api travel to location and date', function () {
 
     $this->post(route('travel', ['user' => $this->user->id]), [
@@ -34,7 +38,7 @@ test('api travel to location and date', function () {
         'location' => '41.8902,12.4922',
         'traveled_to_date' => '0080-05-01 12:00:00',
     ]);
-    $this->assertDatabaseHas('logs', [
+    $this->assertDatabaseHas('travel_logs', [
         'user_id' => $this->user->id,
         'location' => '41.8902,12.4922',
         'from_location' => null,
@@ -67,7 +71,7 @@ test('api return to present time', function () {
         'location' => null,
         'traveled_to_date' => now()->toDateTimeString(),
     ]);
-    $this->assertDatabaseHas('logs', [
+    $this->assertDatabaseHas('travel_logs', [
         'user_id' => $this->user->id,
         'location' => null,
         'from_location' => '41.8902,12.4922',
@@ -80,7 +84,7 @@ test('api forward one week into the future', function () {
         'travelTo' => '0080-05-01 12:00:00',
     ]);
 
-    $this->put(route('forward', ['user' => $this->user->id]))
+    $this->post(route('forward', ['user' => $this->user->id]))
         ->assertStatus(200)
         ->assertJsonStructure([
             'data' => [
@@ -99,7 +103,7 @@ test('api forward one week into the future', function () {
         'id' => $this->user->id,
         'traveled_to_date' => '0080-05-08 12:00:00',
     ]);
-    $this->assertDatabaseHas('logs', [
+    $this->assertDatabaseHas('travel_logs', [
         'user_id' => $this->user->id,
         'location' => '41.8902,12.4922',
         'from_location' => '41.8902,12.4922',
@@ -112,7 +116,7 @@ test('api reverse one week into the past', function () {
         'travelTo' => '0080-05-01 12:00:00',
     ]);
 
-    $this->put(route('back', ['user' => $this->user->id]))
+    $this->post(route('back', ['user' => $this->user->id]))
         ->assertStatus(200)
         ->assertJsonStructure([
             'data' => [
@@ -131,7 +135,7 @@ test('api reverse one week into the past', function () {
         'id' => $this->user->id,
         'traveled_to_date' => '0080-04-24 12:00:00',
     ]);
-    $this->assertDatabaseHas('logs', [
+    $this->assertDatabaseHas('travel_logs', [
         'user_id' => $this->user->id,
         'location' => '41.8902,12.4922',
         'from_location' => '41.8902,12.4922',
@@ -213,6 +217,4 @@ test('locationAt returns most recent location when multiple log entries exist', 
                 'location' => '40.4319,116.5704',
             ],
         ]);
-
-    Carbon::setTestNow();
 });

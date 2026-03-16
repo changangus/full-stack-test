@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TravelLog extends Model
 {
-    protected $table = 'logs';
+    protected $table = 'travel_logs';
 
     public $timestamps = false;
 
