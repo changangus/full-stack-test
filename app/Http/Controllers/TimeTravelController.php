@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LocationAtRequest;
 use App\Http\Requests\TravelRequest;
 use App\Http\Resources\TimeTravelResource;
 use App\Models\User;
 use App\Repositories\TimeTravelRepository;
+use Illuminate\Http\JsonResponse;
 
 class TimeTravelController extends Controller
 {
@@ -30,8 +32,23 @@ class TimeTravelController extends Controller
 
     public function back(User $user): TimeTravelResource
     {
-        $user->update(['traveled_to_date' => $user->traveled_to_date->add($user->traveled_at_date->diffInSeconds(now()), 'seconds')->subWeek(), 'traveled_at_date' => now()]);
+        return new TimeTravelResource($this->repository->back($user));
+    }
 
-        return new TimeTravelResource($user);
+    public function locationAt(LocationAtRequest $request, User $user): JsonResponse
+    {
+        $log = $this->repository->locationAt($user, $request->at());
+
+        return response()->json([
+            'data' => [
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                ],
+                'location' => $log?->location,
+                'at' => $request->at()->toDateTimeString(),
+            ],
+        ]);
     }
 }
